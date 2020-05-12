@@ -4,10 +4,14 @@
 #hint: `systemctl status docker || ...`
 #if docker_deamon is not running
 #	start docker_deamon
-systemctl status docker || systemctl start docker
+docker_command=$1
+db_username=$2
+db_password=$3
+
+#systemctl status docker || systemctl start docker
 
 
-if [[ "$1" == "create" ]];then
+if [ $docker_command == "create" ];then
 
   #hint `docker container ls -a -f name=jrvs-psql | wc -l` should be 2
   if [[ $(docker container ls -a -f name=jrvs-psql) == 2 ]]; then
@@ -16,7 +20,7 @@ if [[ "$1" == "create" ]];then
   fi
 
 
-  if [[ "$2" == "" || "$3" == "" ]];then
+  if [[ $db_username == "" || $db_password == "" ]];then
     echo "db_username or db_password not entered"
     exit 1
   fi
@@ -38,16 +42,16 @@ if [[ $(docker container ls -a -f name=jrvs-psql) == "" ]];then
   exit 1
 fi
 
-if [[ "$1" == "start" ]]; then
+if [ $docker_command == "start" ]; then
   docker container start jrvs-psql
   exit 0
 fi
-if [[ "$1" == "stop" ]];then
+if [ $docker_command == "stop" ];then
   docker container stop jrvs-psql
   exit 0
 fi
 
-if [[ "$1" != "create"  ||  "$1" != "start"  ||   "$1" != "stop" ]];then
+if [[ $docker_command != "create"  ||  $docker_command != "start"  ||   $docker_command != "stop" ]];then
   echo "invaild input given"
   exit 1
 fi
