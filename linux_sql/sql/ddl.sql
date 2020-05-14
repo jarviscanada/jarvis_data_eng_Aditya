@@ -1,8 +1,3 @@
--- ddl.sql pseudocode/steps
---you can assume database is already created for you
---1. (optional) switch to `host_agent`
-
---2. create `host_info` table if not exist
 CREATE TABLE IF NOT EXISTS host_info (
       id               SERIAL NOT NULL,
       hostname         VARCHAR NOT NULL,
@@ -17,7 +12,7 @@ CREATE TABLE IF NOT EXISTS host_info (
       UNIQUE (hostname)
 );
 
---3. create `host_usage` table if not exist
+
 CREATE TABLE IF NOT EXISTS host_usage (
     "timestamp"    TIMESTAMP NOT NULL,
      host_id        SERIAL NOT NULL,
