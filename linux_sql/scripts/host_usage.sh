@@ -1,9 +1,9 @@
-!#/bin/bash
+#!/bin/bash
 
-bash scripts/host_usage.sh psql_host psql_port db_name psql_user psql_password
-
-# Example
-bash scripts/host_usage.sh localhost 5432 host_agent postgres password
+#bash scripts/host_usage.sh psql_host psql_port db_name psql_user psql_password
+#
+## Example
+#bash scripts/host_usage.sh localhost 5432 host_agent postgres password
 
 psql_host=$1
 psql_port=$2
@@ -22,5 +22,6 @@ timestamp=$(echo "$(vmstat -t)"  | egrep "^ 0 " | awk '{print $18, $19}' | xargs
 
 
 
-insert_stmt = INSERT INTO host_usage ("timestamp", host_id, memory_free, cpu_idle, cpu_kernel, disk_io, disk_avaiable) VALUES
-('${timestamp}', {host_id}, )
+insert_stmt = INSERT INTO host_usage ("timestamp", host_id, memory_free, cpu_idle, cpu_kernel, disk_io, disk_avaiable) VALUES ('${timestamp}', SELECT MAX(id) FROM host_info;, ${memory_free}, ${cpu_idle} , ${cpu_kernel}, ${disk_io}, ${disk_avaiable} )
+
+psql -h "$psql_host" -p $psql_port -U "$psql_user" -d "$db_name" -c $insert_stmt
