@@ -16,7 +16,7 @@ cpu_model=$(echo "$lscpu_out" | egrep "^Model name:" | awk '{print $3, $4, $5, $
 cpu_mhz=$(echo "$lscpu_out" | egrep "^CPU MHz:" | awk '{print $3}' | xargs)
 l2_cache=$(echo "$lscpu_out" | egrep "^L2 cache:" | awk '{print $3}' | grep -o -E '[0-9]+' | awk '{print $1}' | xargs)
 total_mem=$(echo "$(cat /proc/meminfo)" | egrep "^MemTotal:" | awk '{print $2}' | xargs)
-timestamp=$(echo "$(vmstat -t)"  | egrep "^ 0 " | awk '{print $18, $19}' | xargs)
+timestamp=$(echo "$(vmstat -t)"  | egrep "1" | awk '{print $18, $19}' | xargs)
 
 
 
