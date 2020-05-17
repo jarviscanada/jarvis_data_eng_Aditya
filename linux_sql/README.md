@@ -1,13 +1,11 @@
 # Linux Cluster Monitoring Agent
-This project is under development. Since this project follows the GitFlow, the final work will be merged to the master branch after Team Code Team.
 ## Introduction
 This project implements a way to check which computers are in a cluster and their usage. The infrastructure team can used the psql_docker to make a container in which they can keep the RDBMS tables of information for the multiple computers and their usage. Creating the DDL will help in creating the tables needed in the docker container in which the team can use to store the information. The monitoring agent will help them in gathering the cluster information through the use of Linux commands in bash scripts. This monitoring agent is critical to the team as it will provide the information for the computers in the cluster and their usage periodically using crontab, and with this information it can input such collected information to the tables in the docker container. All the scripts, bash or sql will help the infrastructure team determine which computers/nodes are on the cluster and how they are using the resources.
 
 ## Architecture and Design
-###1) Cluster Diagram
 ![cluster diagram](./assets/cluster_diagram.jpg)
 
-###2) Tables information
+### 1) Tables information
 
 There are two tables that are used, host_info and host_usage. Both the tables collect data about the hosts on the clusters, but they collect different information, though there are some values that the host_usage table collects from the host_info table. Host_id in host_usage is the foreign key for the id primary key in host_info.
 
@@ -34,63 +32,78 @@ host_usage collects the information about each host's usage at the time. Working
 -disk_available: The amount of disk space that is currently available in MB
 
 
-###3) Describe scripts
+### 2) Describe scripts
 
-psql_docker.sh: create/start/stop docker container that will hold the tables
-ddl.sql: create the host info and usage tables
-host_info.sh: collect host info and insert them into the host_info table
-host_usage.sh: collect usage info and insert them into the host_usage table
-queries.sql: run the queries on host_info and host_usage tables. These queries are such as ranking L2 cache in desending order grouped by cpu number and host id. The other query will figure out the average memory use of each host every 5 minutes.
+psql_docker.sh: create/start/stop docker container that will hold the tables. This script has to be ran before all the other scripts as this will allow the access to the tables. 
+
+ddl.sql: TO create the host_info and host_usage tables in the docker container, this script will create the tables if they have not already been created. It is a good measure to run this script just to make sure the tables exists before the data starts being collected and is attempted to instert into those table
+
+host_info.sh: This script will run the linux commands that will gather the host_info values mentioned above. The values will be assigned to variables, after which it will run a psql command to instert the values into the host_infor tabl 
+
+host_usage.sh: This script will also have linux commands collecting the information needed and then inserting the into the host_usage table. This script needs host_info.sh scrip to executed atleast once before as the host_id for this table is from host_info table. 
+
+queries.sql: This script will run two queries on the host_info and host_usage table. The first script will group the hosts by thier cpu number and sort those groups by thier memory size in decending order.
 
 ## Usage
-1) how to init database and tables
+#### 1) how to init database and tables
 
-to create a database, run the following commands:
+-to create a database, run the following commands:
+```
+#connect to the psql instance
+psql -h localhost -U postgres -W
 
---connect to the psql instance
+#list all database
+postgres=# \l
 
-`psql -h localhost -U postgres -W`
+#create a database
+postgres=# CREATE DATABASE host_agent;
 
---list all database
+#connect to the new database;
+postgres=# \c host_agent;
+```
 
-`postgres=# \l`
+-Now that the database has been created, the following command can be ran to create the table if they have not already been created.
+```
+#run the following command to create host_info and host_usage table
+psql -h localhost -U postgres -W -d host_agent -f sql/ddl.sql
+```
 
---create a database
-
-`postgres=# CREATE DATABASE host_agent;`
-
---connect to the new database;
-
-`postgres=# \c host_agent;`
-
-to create tables, run the following command with appriopate values where needed:
-
-`psql -h localhost -U postgres -W -d host_agent -f sql/ddl.sql`
-
-2) `host_info.sh` usage
-
-run the command in bash : `./scripts/host_info.sh psql_host psql_port db_name psql_user psql_password`
+#### 2) host_info.sh script
+This scrip only needs to be ran once to collect the host information for each host.
+```
+#run the following command to insert the host information
+./scripts/host_info.sh psql_host psql_port db_name psql_user psql_password
+```
 
 
-3) `host_usage.sh` usage
+#### 3) host_usage.sh script
+The host_usage.sh script can be executed multiple times for each host to keep gathering data about the usage.
+```
+#run the following command to execute the host_usage script. 
+scripts/host_usage.sh psql_host psql_port db_name psql_user psql_password
+```
 
-runt the command in bash: `bash scripts/host_usage.sh psql_host psql_port db_name psql_user psql_password`
+#### 4) crontab setup
+The following commands will help in setting up crontab, which will execute the host_usage.sh script every 5 minutes so data for host usage can be retreived and inserted every 5 minutes. These commands are in bash
+```
+#edit crontab jobs
+bash> crontab -e
 
-4) crontab setup
+#add this to crontab
+* * * * * bash /home/centos/dev/jrvs/bootcamp/linux_sql/host_agent/scripts/host_usage.sh localhost 5432 host_agent postgres password > /tmp/host_usage.log
 
-use the following steps:
+#check that the crontab has been created
+crontab -ls
 
---edit crontab jobs
-
-`bash> crontab -e`
-
---add this to crontab
-
-`* * * * * bash /home/centos/dev/jrvs/bootcamp/linux_sql/host_agent/scripts/host_usage.sh localhost 5432 host_agent postgres password > /tmp/host_usage.log`
+#check that the crontab is collecting data as intented
+cat /tmp/host_usage.log
+```
 
 
 ## Improvements 
-1) write the query to be able to swithc to host_agent in ddl.sql
-2) write the query to be able to get host node failure information in queries.sql
-3) write better sql queries
+1) The ddl.sql script needs to be improved to include the switch to host_agent in the database. This improvement would allow for the script to automatically switch to host_agent database, which holds the tables host_info and host_usage. With this improvement, we would not have to manually switch to host_agent and can run queries in the same same such as displaying the tables.
+
+2) Implementing the host node failure in the queries.sql script. This would allow to check which host nodes failed in writing the usage data to the database. This can allow more information on the indiviual hosts and perhaps even figure out which hosts should be checked if they are failing alot.
+
+3) Create a script for the initialzation of the database and host_agent. This would allow the user to run the script alone to initialze the database rather than having to manually run the individual command lines to set the database. Also, this would make sure that some wouldnt make any mistakes in setting up the database if they execute the commands wrong. 
 
