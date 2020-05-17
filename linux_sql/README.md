@@ -11,25 +11,39 @@ There are two tables that are used, host_info and host_usage. Both the tables co
 
 host_info collects the following information:
 
--id: its a serial number that can be used to identfy the host on both tables.
--hostname: get the system host name which will be set as unique value
--cpu_number: the number of cpu cores for the host
--cpu_archetecture: Get the archecture of the host
--cpu_model: Get the host cpu model to identify the cpu used by the host
--cpu_mhz: Get the host cpu clock rate
--L2_cache: Get the L2_cache of the host
--total_mem: Get the total memory of the host in KB size
--timestamp: Get the day and time in UTC for when all this  information  was collected for host_info table
+*id: its a serial number that can be used to identfy the host on both tables.
+
+*hostname: get the system host name which will be set as unique value
+
+*cpu_number: the number of cpu cores for the host
+
+*cpu_archetecture: Get the archecture of the host
+
+*cpu_model: Get the host cpu model to identify the cpu used by the host
+
+*cpu_mhz: Get the host cpu clock rate
+
+*L2_cache: Get the L2_cache of the host
+
+*total_mem: Get the total memory of the host in KB size
+
+*timestamp: Get the day and time in UTC for when all this  information  was collected for host_info table
 
 host_usage collects the information about each host's usage at the time. Working together with crontab, it can collect the data every 5 mins and insert that data into the table. This table shows the usage change after each period.
 
--timestamp: Get the UTC day and time for when the host_usage information had been collected.
--host_id: Get the id from the host_info table for which this information is being collected for.
--memory_free: Current free memeory for the host in MB
--cpu_idle: Percentage of cpu that is currently idle
--cpu_kernal: Percentage of cpu kernel
--disk_io: the current number of I/O in disk
--disk_available: The amount of disk space that is currently available in MB
+*timestamp: Get the UTC day and time for when the host_usage information had been collected.
+
+*host_id: Get the id from the host_info table for which this information is being collected for.
+
+*memory_free: Current free memeory for the host in MB
+
+*cpu_idle: Percentage of cpu that is currently idle
+
+*cpu_kernal: Percentage of cpu kernel
+
+*disk_io: the current number of I/O in disk
+
+*disk_available: The amount of disk space that is currently available in MB
 
 
 ### 2) Describe scripts
