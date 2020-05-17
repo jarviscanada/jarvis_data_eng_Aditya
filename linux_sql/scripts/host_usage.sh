@@ -21,3 +21,5 @@ timestamp=$(echo "$(vmstat -t)"  | egrep "1" | awk '{print $18, $19}' | xargs)
 insert_stmt="INSERT INTO host_usage ( "timestamp", host_id, memory_free, cpu_idle, cpu_kernel, disk_io, disk_available) VALUES ('${timestamp}', (SELECT id FROM host_info), ${memory_free}, ${cpu_idle} , ${cpu_kernel}, ${disk_io}, ${disk_available});"
 
 psql -h "$psql_host" -p $psql_port -U "$psql_user" -d "$db_name" -c "$insert_stmt"
+
+exit $?
