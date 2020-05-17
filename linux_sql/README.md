@@ -4,15 +4,37 @@ This project is under development. Since this project follows the GitFlow, the f
 This project implements a way to check which computers are in a cluster and their usage. The infrastructure team can used the psql_docker to make a container in which they can keep the RDBMS tables of information for the multiple computers and their usage. Creating the DDL will help in creating the tables needed in the docker container in which the team can use to store the information. The monitoring agent will help them in gathering the cluster information through the use of Linux commands in bash scripts. This monitoring agent is critical to the team as it will provide the information for the computers in the cluster and their usage periodically using crontab, and with this information it can input such collected information to the tables in the docker container. All the scripts, bash or sql will help the infrastructure team determine which computers/nodes are on the cluster and how they are using the resources.
 
 ## Architecture and Design
+###1) Cluster Diagram
 ![cluster diagram](./assets/cluster_diagram.jpg)
 
-2) Describe tables
+###2) Tables information
 
-host_info: collect the information about the host in the cluster. Each host will be given a serial primary key and the host name will be unique. Other information collected would be cpu number, cpu architecture, cpu model, cpu mhz, L2 cache, total memory and timestamp of when the information is collected. This data will tell the information about the host from which the usage information was also collected.
+There are two tables that are used, host_info and host_usage. Both the tables collect data about the hosts on the clusters, but they collect different information, though there are some values that the host_usage table collects from the host_info table. Host_id in host_usage is the foreign key for the id primary key in host_info.
 
-host_usage: collected the resource information about the each host in the host table. Such information will be free memeory, idle cpu, cpu kernal, disk io, disk available and again a timestamp of when this information is collected. It will also have the host_id from the host_info table to figure out which host this information belongs to.
+host_info collects the following information:
 
-3) Describe scripts
+-id: its a serial number that can be used to identfy the host on both tables.
+-hostname: get the system host name which will be set as unique value
+-cpu_number: the number of cpu cores for the host
+-cpu_archetecture: Get the archecture of the host
+-cpu_model: Get the host cpu model to identify the cpu used by the host
+-cpu_mhz: Get the host cpu clock rate
+-L2_cache: Get the L2_cache of the host
+-total_mem: Get the total memory of the host in KB size
+-timestamp: Get the day and time in UTC for when all this  information  was collected for host_info table
+
+host_usage collects the information about each host's usage at the time. Working together with crontab, it can collect the data every 5 mins and insert that data into the table. This table shows the usage change after each period.
+
+-timestamp: Get the UTC day and time for when the host_usage information had been collected.
+-host_id: Get the id from the host_info table for which this information is being collected for.
+-memory_free: Current free memeory for the host in MB
+-cpu_idle: Percentage of cpu that is currently idle
+-cpu_kernal: Percentage of cpu kernel
+-disk_io: the current number of I/O in disk
+-disk_available: The amount of disk space that is currently available in MB
+
+
+###3) Describe scripts
 
 psql_docker.sh: create/start/stop docker container that will hold the tables
 ddl.sql: create the host info and usage tables
