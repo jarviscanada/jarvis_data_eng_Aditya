@@ -12,8 +12,9 @@ SELECT
     u.host_id as host_id,
     i.hostname as host_name,
     date_trunc('hour', u."timestamp") + date_part('minute', u."timestamp")::int / 5 * interval '5 min' as times,
-    (((i.total_mem-u.memory_free)*100/i.total_mem)) as average_mem
+    AVG((((i.total_mem-u.memory_free)*100/i.total_mem))) as average_mem
 FROM host_usage u, host_info i
-WHERE u.host_id = i.id;
+WHERE u.host_id = i.id
+group by times, host_id, host_name;
 
 
