@@ -25,19 +25,19 @@ queries.sql: run the queries on host_info and host_usage tables. These queries a
 
 to create a database, run the following commands:
 
-######connect to the psql instance
+--connect to the psql instance
 
 `psql -h localhost -U postgres -W`
 
-######list all database
+--list all database
 
 `postgres=# \l`
 
-######create a database
+--create a database
 
 `postgres=# CREATE DATABASE host_agent;`
 
-######connect to the new database;
+--connect to the new database;
 
 `postgres=# \c host_agent;`
 
@@ -58,11 +58,11 @@ runt the command in bash: `bash scripts/host_usage.sh psql_host psql_port db_nam
 
 use the following steps:
 
-######edit crontab jobs
+--edit crontab jobs
 
 `bash> crontab -e`
 
-######add this to crontab
+--add this to crontab
 
 `* * * * * bash /home/centos/dev/jrvs/bootcamp/linux_sql/host_agent/scripts/host_usage.sh localhost 5432 host_agent postgres password > /tmp/host_usage.log`
 
