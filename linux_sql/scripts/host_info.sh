@@ -8,6 +8,8 @@ psql_password=$5
 hostname=$(hostname -f)
 lscpu_out=`lscpu`
 
+#testing change to branch
+
 cpu_number=$(echo "$lscpu_out"  | egrep "^CPU\(s\):" | awk '{print $2}' | xargs)
 cpu_number=$(echo "$lscpu_out"  | egrep "^CPU\(s\):" | awk '{print $2}' | xargs)
 cpu_architecture=$(echo "$lscpu_out" | egrep "^ARCHITECTURE:" | awk '{print $2}' | xargs)
